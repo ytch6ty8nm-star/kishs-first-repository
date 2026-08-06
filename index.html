@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Kakooma Kids — Number Puzzle Adventure</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="topbar">
+    <div class="brand">🦉 <span>Kakooma Kids</span></div>
+    <div class="topbar-right">
+      <button id="btn-mute" class="icon-btn" title="Sound on/off" aria-label="Toggle sound">🔊</button>
+      <button id="btn-parent" class="icon-btn" title="Parent dashboard" aria-label="Open parent dashboard">⚙️</button>
+    </div>
+  </header>
+
+  <main id="app-main">
+
+    <!-- START SCREEN -->
+    <section id="screen-start" class="screen">
+      <div class="mascot">🦉</div>
+      <h1>Hi <span id="start-name">Explorer</span>!</h1>
+      <p class="subtitle" id="start-level-label">Ready to play some number puzzles?</p>
+      <button id="btn-play" class="big-button">▶ Play</button>
+      <p class="hint">Find two numbers that make the big number, then tap them both!</p>
+    </section>
+
+    <!-- GAME SCREEN -->
+    <section id="screen-game" class="screen hidden">
+      <div class="game-hud">
+        <div class="session-dots" id="session-dots"></div>
+        <div class="stars" id="game-stars">⭐ <span id="stars-count">0</span></div>
+      </div>
+
+      <div class="target-area">
+        <div class="op-badge" id="op-badge">+</div>
+        <div class="target-number" id="target-number">7</div>
+        <div class="target-label">Make this number!</div>
+      </div>
+
+      <div class="tiles-grid" id="tiles-grid"></div>
+
+      <div class="feedback" id="feedback" aria-live="polite"></div>
+    </section>
+
+    <!-- SESSION SUMMARY SCREEN -->
+    <section id="screen-summary" class="screen hidden">
+      <div class="mascot" id="summary-mascot">🎉</div>
+      <h1>Great job!</h1>
+      <div class="summary-stars" id="summary-stars"></div>
+      <p class="subtitle" id="summary-text"></p>
+      <p class="subtitle" id="summary-level-change"></p>
+      <div class="summary-buttons">
+        <button id="btn-play-again" class="big-button">▶ Play Again</button>
+        <button id="btn-home" class="secondary-button">🏠 Home</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PARENT DASHBOARD MODAL -->
+  <div id="parent-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <button id="btn-close-parent" class="modal-close" aria-label="Close">✕</button>
+      <h2>Parent Dashboard</h2>
+
+      <label class="field">
+        Child's name
+        <input id="input-name" type="text" maxlength="20">
+      </label>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-value" id="stat-level">1</div>
+          <div class="stat-label">Level</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-stage">Foundations</div>
+          <div class="stat-label">Stage</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-label">Puzzles Solved</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-accuracy">—</div>
+          <div class="stat-label">Recent Accuracy</div>
+        </div>
+      </div>
+
+      <h3>Progress over recent sessions</h3>
+      <canvas id="progress-chart" width="560" height="140"></canvas>
+
+      <h3>Jump to level</h3>
+      <select id="select-level"></select>
+
+      <div class="modal-actions">
+        <button id="btn-save-parent" class="big-button small">Save</button>
+        <button id="btn-reset-progress" class="danger-button">Reset All Progress</button>
+      </div>
+      <p class="hint">All progress is stored only on this device.</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="js/curriculum.js"></script>
+<script src="js/puzzle.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
