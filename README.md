@@ -4,15 +4,11 @@ A Kakooma-style number puzzle game built for one player: a 5-year-old, with
 the goal of building arithmetic fluency toward a 2nd/3rd-grade (~age 7+)
 level over the course of a year.
 
-**[Try it]** — open `index.html` in a browser, or serve the folder locally:
-
-```
-python3 -m http.server 8000
-# then visit http://localhost:8000
-```
-
-It's a static site (plain HTML/CSS/JS, no build step, no dependencies, no
-network calls, no accounts). Works offline, on a phone, tablet, or laptop.
+**[Try it]** — the whole game is a single self-contained `index.html` file
+(HTML, CSS, and JS all inlined, icon embedded as a data URI). Double-click
+it to open in any browser, or send it straight to a phone — no server, no
+build step, no dependencies, no accounts, and no internet connection
+required at all, since there's nothing external to fetch.
 
 ## How to play
 
@@ -21,33 +17,28 @@ tiles that combine (add, subtract, or multiply, depending on the level) to
 make the target. Get it right and you move to the next puzzle; a session is
 10 puzzles (~5 minutes), ending with a star rating.
 
-## Installing it as an iPhone app
+## Playing it on an iPhone
 
-This is built as a **PWA (Progressive Web App)** rather than a native App
-Store app — for a personal, single-child game that's the right tradeoff: no
-Apple Developer account ($99/yr), no Xcode, no App Store review, and it
-still gets a real home-screen icon, full-screen play with no Safari address
-bar, and offline play after the first load.
+Because it's one plain HTML file with nothing external to load, the
+simplest path skips web hosting entirely:
 
-1. **Host the files somewhere with HTTPS.** The easiest option, since this
-   is already a GitHub repo: go to **Settings → Pages** on this repo, set
-   **Source: Deploy from a branch**, branch **main**, folder **/ (root)**,
-   and save. GitHub gives you a free URL like
-   `https://<your-username>.github.io/kishs-first-repository/`.
-   (A plain `file://` URL on the phone won't work for the offline/install
-   part — Safari only allows the service worker that powers offline play
-   over `https://` or `localhost`.)
-2. On the iPhone, open that URL in **Safari** (must be Safari, not Chrome —
-   only Safari can install PWAs to the home screen on iOS).
+1. Get `index.html` onto the phone — AirDrop it from a Mac, email it to
+   yourself, or save it via the Files app (e.g. from iCloud Drive/Dropbox).
+2. Open it from the **Files app** — it opens in Safari automatically.
 3. Tap the **Share** button → **Add to Home Screen** → **Add**.
 4. A "Kakooma" icon appears on the home screen. Opening it launches
-   full-screen, like a native app, and it keeps working without wifi once
-   it's been opened at least once while online.
+   full-screen, like a native app — and since the file lives on the phone,
+   it works with wifi fully off.
 
-If you ever change the code and push it, the app updates itself in the
-background next time it's opened — no reinstall needed. (If a change
-doesn't seem to show up, bump the `CACHE_NAME` version string at the top of
-`sw.js` — that forces the old cached copy to be replaced.)
+No Apple Developer account, no Xcode, no App Store review, and no GitHub
+Pages needed.
+
+**Alternative — a shareable link.** If you'd rather send a URL than a file
+(e.g. to open on multiple devices without AirDropping each time), you can
+still host this same `index.html` anywhere that serves static files —
+GitHub Pages, Netlify, or similar — since it's just one file. The
+install steps are the same (open the URL in Safari → Share → Add to Home
+Screen); the only difference is step 1 is a link instead of a local file.
 
 ## Curriculum design
 
@@ -118,18 +109,18 @@ the device, and nothing requires an account.
 
 ## Project structure
 
-```
-index.html           Screens: start, game, session summary, parent dashboard
-manifest.json         PWA metadata (name, icons, colors) for "Add to Home Screen"
-sw.js                  Service worker: caches assets for offline play
-icons/                 App icon at the sizes iOS/Android expect
-css/style.css          Kid-friendly styling (big tiles, bright colors, animations)
-js/curriculum.js       The 7 stages / 20 levels, each with a milestone + grade tag
-js/puzzle.js           Puzzle generation (unique-solution board builder)
-js/storage.js          localStorage persistence, adaptive leveling, milestones, streaks
-js/audio.js            Simple synthesized sound effects (no audio files)
-js/app.js              Screen flow, game loop, parent dashboard wiring
-```
+Everything lives in **one file**, `index.html`, for simplicity of
+deployment — no separate CSS/JS files, manifest, or service worker to keep
+in sync. Inside it, in order:
+
+- Markup for the four screens: start, game, session summary, parent dashboard
+- `<style>` — kid-friendly styling (big tiles, bright colors, animations)
+- `<script>` blocks, in dependency order:
+  - **curriculum** — the 7 stages / 20 levels, each with a milestone + grade tag
+  - **puzzle** — puzzle generation (unique-solution board builder)
+  - **storage** — localStorage persistence, adaptive leveling, milestones, streaks
+  - **audio** — simple synthesized sound effects (no audio files)
+  - **app** — screen flow, game loop, parent dashboard wiring
 
 ## Extending it
 
