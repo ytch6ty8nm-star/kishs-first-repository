@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Kakooma Kids — Number Puzzle Adventure</title>
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-32.png">
+<meta name="theme-color" content="#4f46e5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kakooma">
+
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -50,10 +60,17 @@
     <!-- SESSION SUMMARY SCREEN -->
     <section id="screen-summary" class="screen hidden">
       <div class="mascot" id="summary-mascot">🎉</div>
-      <h1>Great job!</h1>
+      <h1 id="summary-heading">Great job!</h1>
       <div class="summary-stars" id="summary-stars"></div>
       <p class="subtitle" id="summary-text"></p>
       <p class="subtitle" id="summary-level-change"></p>
+      <div class="milestone-banner hidden" id="summary-milestone-banner">
+        <div class="milestone-badge">🏅</div>
+        <div>
+          <div class="milestone-title">Milestone unlocked!</div>
+          <div class="milestone-skill" id="summary-milestone-skill"></div>
+        </div>
+      </div>
       <div class="summary-buttons">
         <button id="btn-play-again" class="big-button">▶ Play Again</button>
         <button id="btn-home" class="secondary-button">🏠 Home</button>
@@ -75,7 +92,7 @@
 
       <div class="stat-row">
         <div class="stat-box">
-          <div class="stat-value" id="stat-level">1</div>
+          <div class="stat-value" id="stat-level">1 / 20</div>
           <div class="stat-label">Level</div>
         </div>
         <div class="stat-box">
@@ -90,10 +107,23 @@
           <div class="stat-value" id="stat-accuracy">—</div>
           <div class="stat-label">Recent Accuracy</div>
         </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-streak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-milestones">0 / 20</div>
+          <div class="stat-label">Milestones</div>
+        </div>
       </div>
 
       <h3>Progress over recent sessions</h3>
       <canvas id="progress-chart" width="560" height="140"></canvas>
+
+      <h3>Milestones achieved</h3>
+      <div id="milestones-list" class="milestones-list">
+        <p class="hint">No milestones yet — they appear here once a level is mastered.</p>
+      </div>
 
       <h3>Jump to level</h3>
       <select id="select-level"></select>
@@ -113,5 +143,12 @@
 <script src="js/storage.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>

@@ -31,9 +31,12 @@ const el = {
   feedback: document.getElementById('feedback'),
 
   summaryMascot: document.getElementById('summary-mascot'),
+  summaryHeading: document.getElementById('summary-heading'),
   summaryStars: document.getElementById('summary-stars'),
   summaryText: document.getElementById('summary-text'),
   summaryLevelChange: document.getElementById('summary-level-change'),
+  summaryMilestoneBanner: document.getElementById('summary-milestone-banner'),
+  summaryMilestoneSkill: document.getElementById('summary-milestone-skill'),
   btnPlayAgain: document.getElementById('btn-play-again'),
   btnHome: document.getElementById('btn-home'),
 
@@ -44,7 +47,10 @@ const el = {
   statStage: document.getElementById('stat-stage'),
   statTotal: document.getElementById('stat-total'),
   statAccuracy: document.getElementById('stat-accuracy'),
+  statStreak: document.getElementById('stat-streak'),
+  statMilestones: document.getElementById('stat-milestones'),
   progressChart: document.getElementById('progress-chart'),
+  milestonesList: document.getElementById('milestones-list'),
   selectLevel: document.getElementById('select-level'),
   btnSaveParent: document.getElementById('btn-save-parent'),
   btnResetProgress: document.getElementById('btn-reset-progress'),
@@ -63,7 +69,7 @@ function refreshStartScreen() {
   el.startName.textContent = profile.name;
   const level = getLevel(profile.levelId);
   const stage = getStage(level.stage);
-  el.startLevelLabel.textContent = `Level ${level.id}: ${level.label} (${stage.name})`;
+  el.startLevelLabel.textContent = `Level ${level.id} of ${maxLevelId()}: ${level.label} (${stage.name})`;
   el.btnMute.textContent = profile.muted ? '🔇' : '🔊';
 }
 
@@ -223,12 +229,23 @@ function showSummary(accuracy, levelChange) {
   const starCount = accuracy >= 0.9 ? 3 : accuracy >= 0.6 ? 2 : 1;
   el.summaryStars.textContent = '⭐'.repeat(starCount) + '☆'.repeat(3 - starCount);
   el.summaryText.textContent = `You got ${session.firstTryCorrect} out of ${session.puzzlesCompleted} right away!`;
+  el.summaryHeading.textContent = 'Great job!';
+  el.summaryMilestoneBanner.classList.add('hidden');
+
+  const masteredLevel = getLevel(session.levelId);
 
   if (levelChange === 'up') {
     playLevelUp(profile);
-    const level = getLevel(profile.levelId);
+    const nextLevel = getLevel(profile.levelId);
     el.summaryMascot.textContent = '🚀';
-    el.summaryLevelChange.textContent = `Level Up! Now on Level ${level.id}: ${level.label}`;
+    el.summaryLevelChange.textContent = `Level Up! Now on Level ${nextLevel.id}: ${nextLevel.label}`;
+    showMilestoneBanner(masteredLevel);
+  } else if (levelChange === 'complete') {
+    playLevelUp(profile);
+    el.summaryMascot.textContent = '🏆';
+    el.summaryHeading.textContent = 'You did it!';
+    el.summaryLevelChange.textContent = `All ${maxLevelId()} levels complete — Math Champion!`;
+    showMilestoneBanner(masteredLevel);
   } else if (levelChange === 'down') {
     el.summaryMascot.textContent = '💪';
     const level = getLevel(profile.levelId);
@@ -239,6 +256,11 @@ function showSummary(accuracy, levelChange) {
   }
 
   showScreen('summary');
+}
+
+function showMilestoneBanner(level) {
+  el.summaryMilestoneSkill.textContent = `${level.milestone} (${level.gradeLevel})`;
+  el.summaryMilestoneBanner.classList.remove('hidden');
 }
 
 // ---------- top bar ----------
@@ -263,9 +285,11 @@ function openParentDashboard() {
   el.inputName.value = profile.name;
   const level = getLevel(profile.levelId);
   const stage = getStage(level.stage);
-  el.statLevel.textContent = `${level.id} — ${level.label}`;
+  el.statLevel.textContent = `${level.id} / ${maxLevelId()}`;
   el.statStage.textContent = stage.name;
   el.statTotal.textContent = profile.totalPuzzlesSolved;
+  el.statStreak.textContent = computeStreak(profile);
+  el.statMilestones.textContent = `${(profile.milestones || []).length} / ${maxLevelId()}`;
 
   const recent = profile.sessions.slice(-5);
   if (recent.length) {
@@ -284,8 +308,39 @@ function openParentDashboard() {
     el.selectLevel.appendChild(opt);
   });
 
+  renderMilestones();
   drawProgressChart();
   el.parentModal.classList.remove('hidden');
+}
+
+function renderMilestones() {
+  const milestones = (profile.milestones || []).slice().sort((a, b) => b.dateAchieved - a.dateAchieved);
+  el.milestonesList.innerHTML = '';
+
+  if (!milestones.length) {
+    el.milestonesList.innerHTML = '<p class="hint">No milestones yet — they appear here once a level is mastered.</p>';
+    return;
+  }
+
+  milestones.forEach(m => {
+    const item = document.createElement('div');
+    item.className = 'milestone-item';
+    const date = new Date(m.dateAchieved).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    item.innerHTML = `
+      <div class="milestone-item-badge">🏅</div>
+      <div class="milestone-item-body">
+        <div class="milestone-item-title">${escapeHtml(m.skill)}</div>
+        <div class="milestone-item-meta">Level ${m.levelId} · ${escapeHtml(m.gradeLevel)} · ${date} · ${m.avgAccuracy}% accuracy</div>
+      </div>
+    `;
+    el.milestonesList.appendChild(item);
+  });
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 function drawProgressChart() {
