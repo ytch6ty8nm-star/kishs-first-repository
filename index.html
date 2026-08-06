@@ -23,6 +23,15 @@
   --bad: #f87171;
   --text: #1e293b;
   --card-bg: #ffffff;
+
+  /* Per-operation identity colours. The game screen picks one of these up
+     as a glow so the child can tell at a glance which operation a puzzle
+     is asking for, without having to read the badge symbol. */
+  --op-add: #16a34a;      /* green  */
+  --op-subtract: #dc2626; /* red    */
+  --op-multiply: #9333ea; /* purple */
+  --op-divide: #2563eb;   /* blue   */
+
   font-family: -apple-system, "Segoe UI", "Segoe UI Rounded", ui-rounded, Verdana, sans-serif;
 }
 
@@ -171,11 +180,42 @@ h1 { font-size: 1.8rem; margin: 4px 0; color: var(--primary-dark); }
   font-size: 1.4rem;
   font-weight: 800;
   color: white;
-  background: var(--primary);
+  background: var(--op-color, var(--primary));
   width: 36px; height: 36px;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   margin-bottom: 4px;
+  transition: background 0.25s ease;
+}
+
+/* ---- per-operation glow ----
+   Each operation sets --op-color on the game screen; the frame's border,
+   glow, target number and badge all read from that single variable. */
+
+.game-frame {
+  border: 3px solid var(--op-color, transparent);
+  border-radius: 26px;
+  padding: 14px 12px 20px;
+  background: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 0 20px 5px color-mix(in srgb, var(--op-color, transparent) 45%, transparent),
+    inset 0 0 22px color-mix(in srgb, var(--op-color, transparent) 14%, transparent);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.op-add      { --op-color: var(--op-add); }
+.op-subtract { --op-color: var(--op-subtract); }
+.op-multiply { --op-color: var(--op-multiply); }
+.op-divide   { --op-color: var(--op-divide); }
+
+.game-frame .target-number {
+  color: var(--op-color, var(--primary-dark));
+  text-shadow: 0 4px 0 color-mix(in srgb, var(--op-color, var(--primary)) 18%, transparent);
+  transition: color 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-frame, .op-badge, .game-frame .target-number { transition: none; }
 }
 
 .target-number {
@@ -385,7 +425,7 @@ h1 { font-size: 1.8rem; margin: 4px 0; color: var(--primary-dark); }
     </section>
 
     <!-- GAME SCREEN -->
-    <section id="screen-game" class="screen hidden">
+    <section id="screen-game" class="screen game-frame hidden">
       <div class="game-hud">
         <div class="session-dots" id="session-dots"></div>
         <div class="stars" id="game-stars">⭐ <span id="stars-count">0</span></div>
@@ -944,7 +984,9 @@ const el = {
   btnResetProgress: document.getElementById('btn-reset-progress'),
 };
 
-const OP_SYMBOL = { add: '+', subtract: '−', multiply: '×' };
+const OP_SYMBOL = { add: '+', subtract: '−', multiply: '×', divide: '÷' };
+const OP_CLASS = { add: 'op-add', subtract: 'op-subtract', multiply: 'op-multiply', divide: 'op-divide' };
+const ALL_OP_CLASSES = Object.values(OP_CLASS);
 
 function showScreen(name) {
   [el.screenStart, el.screenGame, el.screenSummary].forEach(s => s.classList.add('hidden'));
@@ -999,6 +1041,11 @@ function nextPuzzle() {
 function renderPuzzle() {
   el.opBadge.textContent = OP_SYMBOL[puzzle.op];
   el.targetNumber.textContent = puzzle.target;
+
+  // Colour the whole game frame to match the current operation.
+  el.screenGame.classList.remove(...ALL_OP_CLASSES);
+  if (OP_CLASS[puzzle.op]) el.screenGame.classList.add(OP_CLASS[puzzle.op]);
+
   el.tilesGrid.innerHTML = '';
   el.tilesGrid.className = 'tiles-grid grid-' + puzzle.tiles.length;
 
