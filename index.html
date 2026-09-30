@@ -734,10 +734,10 @@ function isPairCorrect(tileA, tileB, target, op) {
 
 const STORAGE_KEY = 'kakooma-kids-profile-v2';
 
-// A brand-new player starts at level 4 ("Up to Eight") rather than level 1.
-// Levels 1-3 remain reachable: the adaptive engine can still step a
+// A brand-new player starts at level 6 ("Perfect Ten") rather than level 1.
+// Earlier levels remain reachable: the adaptive engine can still step a
 // struggling child down into them, and a parent can jump there manually.
-const DEFAULT_LEVEL_ID = 4;
+const DEFAULT_LEVEL_ID = 6;
 
 function defaultProfile() {
   return {
